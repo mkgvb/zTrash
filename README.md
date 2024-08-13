@@ -60,10 +60,11 @@ socks pass {
 
 7.  Firefox setup
     - goto settings, search proxy
-    - SOCKS HOST: <YOUR BRIDGE INTERACE IP>
-    - PORT: 1080
-    - NO PROXY. You might want to add stuff here that Z will block. Here is my list so far
-*discord.com,*discord.gg, *.discordapp.net, *discordapp.com, *spotify.com, *.spotify.com
+    - SOCKS HOST: `<YOUR BRIDGE INTERACE IP>`
+    - PORT: `1080`
+    - NO PROXY: `*discord.com,*discord.gg, *.discordapp.net, *discordapp.com, *spotify.com, *.spotify.com`
+      - Feel free to add more that you dont want proxied
+
 
 ### Addendum
 It would seem that danted is always uses the routing table of the host, regardless of how you set external in /etc/sockd.conf. Which sucks.
