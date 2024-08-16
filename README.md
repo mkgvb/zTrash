@@ -1,73 +1,104 @@
-## zTrash
+## zTrash Setup Guide
 
+### Prerequisites
+- **Machine**: Ensure the system can connect to Z and has VMware installed.
 
-0. Find a company brick capable of connecting to Z and has vmware
-1. Create a VM, Linux, I used fedora 40
-2. Setup 2 interfaces one NAT, one BRIDGE
-    - ens160 is my BRIDGE
-    - ens192 is my NAT
-3. Once booted/installed, Turn off NAT interface, its useless until you get everything setup as Z spyware is trash, nothing will install.
-4. Install danted via apt/dnf (fedora) I believe in the Debian pkg its called sockd (possibly libsockd idgaf). Dont mix this up with dante, this is the client, you want the daemon(server)
-5. Turn back on NAT interface
+### Step 1: Create a Virtual Machine
+- **Operating System**: Use Linux (Fedora 40 in this example).
+- **Network Interfaces**:
+  - `ens160`: BRIDGE interface.
+  - `ens192`: NAT interface.
 
-Check your routes make sure your NAT interface is default (metric lower).
-`route -n` (fedora, ubuntu good luck) should look like this
-```
-Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
-0.0.0.0         192.168.159.2   0.0.0.0         UG    100    0        0 ens192
-0.0.0.0         192.168.8.1     0.0.0.0         UG    199    0        0 ens160
-172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
-192.168.8.0     0.0.0.0         255.255.255.0   U     199    0        0 ens160
-192.168.159.0   0.0.0.0         255.255.255.0   U     100    0        0 ens192
-```
-- If its not Turn off bridge for a second and then turn it back on usually gets it right, I set my metric to higher always for ens160, cant remember how.
+### Step 2: Initial Setup
+1. **Disable NAT Interface**: After installation, turn off the NAT interface. It won't be needed until later due to potential issues with Z certificate and blocking almost every url.
+2. **Install Dante SOCKS Server**:
+   - Fedora: `dnf install danted`
+   - Debian-based: `apt install sockd` (may also be `libsockd?`).
 
+### Step 3: Configure Networking
+1. **Enable NAT Interface**: Once setup is complete.
+2. **Check Routing**:
+   - Ensure the NAT interface is the default (lower metric).
+   - Run `route -n` (Fedora) to verify:
+     ```bash
+     Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+     0.0.0.0         192.168.159.2   0.0.0.0         UG    100    0        0 ens192
+     0.0.0.0         192.168.8.1     0.0.0.0         UG    199    0        0 ens160
+     172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
+     192.168.8.0     0.0.0.0         255.255.255.0   U     199    0        0 ens160
+     192.168.159.0   0.0.0.0         255.255.255.0   U     100    0        0 ens192
+     ```
+   - If not correct: Temporarily turn off the BRIDGE interface and then turn it back on. You may need to adjust the metric for `ens160` (set it higher).
 
-Here is my `/etc/sockd.conf`
-```
-# Logging configuration
-logoutput: syslog stdout /var/log/sockd.log
+### Step 4: Configure Dante SOCKS Server
+Edit `/etc/sockd.conf`:
 
-# Server address specification
-internal: ens160 port = 1080
-external: ens192
+    ```bash
+    # Logging configuration
+    logoutput: syslog stdout /var/log/sockd.log
+    
+    # Server address specification
+    internal: ens160 port = 1080
+    external: ens192
+    
+    #external.rotation: route
+    
+    # Method to use for outgoing connections
+    socksmethod: none
+    
+    user.privileged: root
+    user.unprivileged: nobody
+    
+    # Client rules - specify which clients are allowed to connect
+    client pass {
+        from: 0.0.0.0/0 to: 0.0.0.0/0
+        log: connect disconnect error
+    }
+    
+    # Server rules - specify which destinations are allowed
+    socks pass {
+        from: 0.0.0.0/0 to: 0.0.0.0/0
+        log: connect disconnect error
+    }
+    ```
 
-#external.rotation: route
+### Step 5: Enable and Start Dante SOCKS Server
+    ```bash
+    systemctl enable danted
+    systemctl start danted
+    ```
 
-# Method to use for outgoing connections
-socksmethod: none
+### Step 6: Firefox Proxy Setup
+1. Go to Firefox settings and search for `Proxy`.
+2. Configure the following:
+   - **SOCKS HOST**: `<YOUR BRIDGE INTERFACE IP>`
+   - **PORT**: `1080`
+   - **NO PROXY**: `*discord.com,*discord.gg,*.discordapp.net,*discordapp.com,*spotify.com,*.spotify.com`
+     - Add more domains as needed that you don't want proxied.
 
+### Step 7: (Optional) Use BRIDGE Interface as Default Gateway with Routing Table
+1. **Create and Configure a Dispatcher Script**:
+   - Create the file `/etc/NetworkManager/dispatcher.d/10-danted-routing`.
+   - Make it executable and add the following content:
+     ```bash
+     if [ "$1" == "ens192" ] && [ "$2" == "up" ]; then
+         # Add the custom routing table
+         echo "100 danted" >> /etc/iproute2/rt_tables
+    
+         # Add the policy rule
+         ip rule add from 192.168.159.0/24 lookup danted
+    
+         # Add the route to the danted table
+         ip route add default via 192.168.159.2 dev ens192 table danted
+     fi
+     ```
 
-user.privileged: root
-user.unprivileged: nobody
-
-
-# Client rules - specify which clients are allowed to connect
-client pass {
-    from: 0.0.0.0/0 to: 0.0.0.0/0
-    log: connect disconnect error
-}
-
-# Server rules - specify which destinations are allowed
-socks pass {
-    from: 0.0.0.0/0 to: 0.0.0.0/0
-    log: connect disconnect error
-```
-
-6.  enable and start danted(sockd)
-    - `systemctl enable danted`
-    - `systemctl start danted`
-
-7.  Firefox setup
-    - goto settings, search proxy
-    - SOCKS HOST: `<YOUR BRIDGE INTERACE IP>`
-    - PORT: `1080`
-    - NO PROXY: `*discord.com,*discord.gg, *.discordapp.net, *discordapp.com, *spotify.com, *.spotify.com`
-      - Feel free to add more that you dont want proxied
-
-
-### Addendum
-It would seem that danted is always uses the routing table of the host, regardless of how you set external in /etc/sockd.conf. Which sucks.
-This means that your default route is the NAT interface which means that the VM cant get to the internet due to Z.
-SSH via the BRIDGE interface will work.
-Tailscale will not work due to the routing.
+2. **Restart and Verify**:
+   - After restarting, check that the `danted` routing table is active:
+     ```bash
+     ip route show table danted
+     ```
+   - You should see:
+     ```bash
+     default via 192.168.159.2 dev ens192
+     ```
