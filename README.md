@@ -2,6 +2,8 @@
 
 ### Prerequisites
 - **Machine**: Ensure the system can connect to Z and has VMware installed.
+- Mouse jiggler recommended, but probably not required
+-   https://github.com/arkane-systems/mousejiggler use the portable version, which the developer obviously hates but is your only option
 
 ### Step 1: Create a Virtual Machine
 - **Operating System**: Use Linux (Fedora 40 in this example).
@@ -73,7 +75,7 @@ Edit `/etc/sockd.conf`:
 2. Configure the following:
    - **SOCKS HOST**: `<YOUR BRIDGE INTERFACE IP>`
    - **PORT**: `1080`
-   - **NO PROXY**: `*discord.com,*discord.gg,*.discordapp.net,*discordapp.com,*spotify.com,*.spotify.com`
+   - **NO PROXY**: `*discord.com,*discord.gg, *.discordapp.net, *discordapp.com, *spotify.com, *.spotify.com, *mkgvb.com, *.mkgvb.com,*discord*, *.googleapis.com`
      - Add more domains as needed that you don't want proxied.
 
 ### Step 7: (Optional) Use BRIDGE Interface as Default Gateway with Routing Table
