@@ -3,7 +3,7 @@
 ### Prerequisites
 - **Machine**: Ensure the system can connect to Z and has VMware installed.
 - Mouse jiggler recommended, but probably not required
--   https://github.com/arkane-systems/mousejiggler use the portable version, which the developer obviously hates but is your only option
+  - https://github.com/arkane-systems/mousejiggler use the portable version, which the developer obviously hates but is your only option due to IT treating you like a 4 year old
 
 ### Step 1: Create a Virtual Machine
 - **Operating System**: Use Linux (Fedora 40 in this example).
