@@ -104,3 +104,26 @@ Edit `/etc/sockd.conf`:
      ```bash
      default via 192.168.159.2 dev ens192
      ```
+   - Harden sockd so it keeps trying to restart
+     ```bash
+     cat /usr/lib/systemd/system/sockd.service
+      [Unit]
+      Description=Dante SOCKS server
+      After=syslog.target network.target network-online.target
+      Documentation=man:sockd(8) man:sockd.conf(5)
+      After=network-online.target
+      Wants=network-online.target
+      
+      [Service]
+      Type=forking
+      #EnvironmentFile=/etc/sockd.conf
+      PIDFile=/run/sockd.pid
+      ExecStart=/usr/sbin/sockd -D -p /run/sockd.pid
+      Restart=on-failure
+      RestartSec=5s
+      StartLimitBurst=3  # Maximum number of start attempts within the StartLimitIntervalSec
+      StartLimitIntervalSec=60s  # Time window for counting retries
+      
+      [Install]
+      WantedBy=multi-user.target
+    ```
