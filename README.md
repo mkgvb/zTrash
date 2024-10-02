@@ -127,3 +127,26 @@ Edit `/etc/sockd.conf`:
       [Install]
       WantedBy=multi-user.target
     ```
+  ### Step 8: (Optional) Auto start the vm on windows login
+1. **Create a batch script and add it to shell::startup**
+   - script
+   ```batch
+    @echo off
+    REM Set the path to your vmrun executable (if necessary, otherwise skip this part)
+    set vmrun_path="C:\Program Files (x86)\VMware\VMware Workstation\vmrun.exe"
+    
+    REM Set the path to your VM's .vmx file
+    set vmx_path="C:\Users\USERNAME_REPLACE_ME\Documents\Virtual Machines\Fedora 64-bit\Fedora 64-bit.vmx"
+    
+    REM Run the vmrun command in a minimized window without the GUI
+    start /min "" %vmrun_path% start %vmx_path% nogui
+    
+    REM Optional: Check if the VM was started successfully
+    if %errorlevel% == 0 (
+        echo %vmx_path% started successfully in the background without GUI.
+    ) else (
+        echo Failed to start the VM.
+    )
+    pause
+```
+     
