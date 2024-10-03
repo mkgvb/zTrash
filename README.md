@@ -83,6 +83,8 @@ Edit `/etc/sockd.conf`:
    - Create the file `/etc/NetworkManager/dispatcher.d/10-danted-routing`.
    - Make it executable and add the following content:
      ```bash
+     #!/bin/bash
+     
      if [ "$1" == "ens192" ] && [ "$2" == "up" ]; then
          # Add the custom routing table
          echo "100 danted" >> /etc/iproute2/rt_tables
