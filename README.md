@@ -66,8 +66,8 @@ Edit `/etc/sockd.conf`:
 
 ### Step 5: Enable and Start Dante SOCKS Server
     ```bash
-    systemctl enable danted
-    systemctl start danted
+    systemctl enable sockd
+    systemctl start sockd
     ```
 
 ### Step 6: Firefox Proxy Setup
