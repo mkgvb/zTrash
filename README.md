@@ -14,8 +14,8 @@
 ### Step 2: Initial Setup
 1. **Disable NAT Interface**: After installation, turn off the NAT interface. It won't be needed until later due to potential issues with Z certificate and blocking almost every url.
 2. **Install Dante SOCKS Server**:
-   - Fedora: `dnf install danted`
-   - Debian-based: `apt install sockd` (may also be `libsockd?`).
+   - Fedora: `dnf install dante-server`
+   - Debian-based: `apt install sockd` (may also be `libsockd?` or `sockd-server`).
 
 ### Step 3: Configure Networking
 1. **Enable NAT Interface**: Once setup is complete.
