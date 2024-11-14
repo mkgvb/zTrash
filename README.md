@@ -106,7 +106,7 @@ Edit `/etc/sockd.conf`:
      ```bash
      default via 192.168.159.2 dev ens192
      ```
-   - Harden sockd so it keeps trying to restart
+   - Harden sockd so it restarts if it fails on boot
      ```bash
      cat /usr/lib/systemd/system/sockd.service
       [Unit]
@@ -128,10 +128,9 @@ Edit `/etc/sockd.conf`:
       
       [Install]
       WantedBy=multi-user.target
-    ```
+      ```
   ### Step 8: (Optional) Auto start the vm on windows login
-1. **Create a batch script and add it to shell::startup**
-   - script
+  1. **Create a batch script and add it to shell::startup**
    ```batch
     @echo off
     REM Set the path to your vmrun executable (if necessary, otherwise skip this part)
@@ -150,5 +149,13 @@ Edit `/etc/sockd.conf`:
         echo Failed to start the VM.
     )
     pause
-```
+   ```
+### Step 9: (Optional) Make proxied applications into apps
+- Windows
+  - For example this is outlook. Make a file on your desktop named outlook.cmd. Stick this in it and double click when done
+  ```batch
+  @echo off
+  start chrome --proxy-server=socks5://{PROXY_ADDRESS}:1080 -app=https://outlook.office365.us/mail/
+  ```
+
      
