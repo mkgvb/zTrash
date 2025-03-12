@@ -40,7 +40,7 @@ Edit `/etc/sockd.conf`:
     logoutput: syslog stdout /var/log/sockd.log
     
     # Server address specification
-    internal: ens160 port = 1080
+    internal: 0.0.0.0 port = 1080
     external: ens192
     
     #external.rotation: route
@@ -78,8 +78,16 @@ Edit `/etc/sockd.conf`:
    - **NO PROXY**: `*discord.com,*discord.gg, *.discordapp.net, *discordapp.com, *spotify.com, *.spotify.com, *mkgvb.com, *.mkgvb.com,*discord*, *.googleapis.com`
      - Add more domains as needed that you don't want proxied.
 
-### Step 7: (Optional) Use BRIDGE Interface as Default Gateway with Routing Table
-1. **Create and Configure a Dispatcher Script**:
+### Step 7: (Optional) Use BRIDGE Interface as Default Gateway with Routing Table - needed for tailscale
+0.nmcli connection show
+internet ens160  525774e7-5840-3f4f-9bc1-9b41067c6784  ethernet  ens160
+z ens192    87031035-5c31-3902-9a05-2c2bf3d1edf4  ethernet  ens192
+tailscale0       84df967e-b537-41bb-8108-2c8406a950f2  tun       tailscale0
+lo               29114100-cadb-443f-9224-2da5444b366a  loopback  lo
+docker0          6e68c769-ef86-49a0-b80b-4ee6dc0d4bf0  bridge    docker0
+1. nmcli connection modify 525774e7-5840-3f4f-9bc1-9b41067c6784 ipv4.route-metric 99 
+
+2. **Create and Configure a Dispatcher Script**:
    - Create the file `/etc/NetworkManager/dispatcher.d/10-danted-routing`.
    - Make it executable and add the following content:
      ```bash
@@ -97,7 +105,7 @@ Edit `/etc/sockd.conf`:
      fi
      ```
 
-2. **Restart and Verify**:
+3. **Restart and Verify**:
    - After restarting, check that the `danted` routing table is active:
      ```bash
      ip route show table danted
