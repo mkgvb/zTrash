@@ -79,18 +79,26 @@ Edit `/etc/sockd.conf`:
      - Add more domains as needed that you don't want proxied.
 
 ### Step 7: (Optional) Use BRIDGE Interface as Default Gateway with Routing Table - needed for tailscale
-0.
+0. Modifiy your routing table default gateway to always use your internet interface as a lower metric, im using 99
+   Find your network interface guid with:
 `nmcli connection show`
 ```
-internet ens160  525774e7-5840-3f4f-9bc1-9b41067c6784  ethernet  ens160
+internet ens160  **525774e7-5840-3f4f-9bc1-9b41067c6784**  ethernet  ens160
 z ens192    87031035-5c31-3902-9a05-2c2bf3d1edf4  ethernet  ens192
 tailscale0       84df967e-b537-41bb-8108-2c8406a950f2  tun       tailscale0
 lo               29114100-cadb-443f-9224-2da5444b366a  loopback  lo
 docker0          6e68c769-ef86-49a0-b80b-4ee6dc0d4bf0  bridge    docker0
 ```
-1. `nmcli connection modify 525774e7-5840-3f4f-9bc1-9b41067c6784 ipv4.route-metric 99 `
 
-2. **Create and Configure a Dispatcher Script**:
+1. Run this command but change the guid to your internet interface `nmcli connection modify **525774e7-5840-3f4f-9bc1-9b41067c6784** ipv4.route-metric 99 `
+Then bounce the interface and check its metric is less than the z interface with `route -n`
+```
+0.0.0.0         192.168.8.1     0.0.0.0         UG    99     0        0 ens160
+0.0.0.0         192.168.159.2   0.0.0.0         UG    100    0        0 ens192
+```
+
+
+3. **Create and Configure a Dispatcher Script**:
    - Create the file `/etc/NetworkManager/dispatcher.d/10-danted-routing`.
    - Make it executable and add the following content:
      ```bash
@@ -108,7 +116,7 @@ docker0          6e68c769-ef86-49a0-b80b-4ee6dc0d4bf0  bridge    docker0
      fi
      ```
 
-3. **Restart and Verify**:
+4. **Restart and Verify**:
    - After restarting, check that the `danted` routing table is active:
      ```bash
      ip route show table danted
