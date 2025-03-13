@@ -171,10 +171,11 @@ Then bounce the interface and check its metric is less than the z interface with
    ```
 ### Step 9: (Optional) Make proxied applications into apps
 - Windows
+  - Grab portable chrome from https://portableapps.com/apps/internet/google_chrome_portable else the proxy settings will effect your system installed chrome
   - For example this is outlook. Make a file on your desktop named outlook.cmd. Stick this in it and double click when done
   ```batch
   @echo off
-  start chrome --proxy-server=socks5://{PROXY_ADDRESS}:1080 -app=https://outlook.office365.us/mail/
+  C:\Users\{USER}\ChromePortable\GoogleChromePortable.exe --proxy-server=socks5://{PROXY_ADDRESS}:1080 -app=https://outlook.office365.us/mail/
   ```
 
      
