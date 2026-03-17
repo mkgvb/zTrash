@@ -41,7 +41,7 @@ Edit `/etc/sockd.conf`:
     
     # Server address specification
     internal: 0.0.0.0 port = 1080
-    external: ens192
+    external: ens192 ###<MAKE SURE THIS IS YOUR NAT INTERFACE>###
     
     #external.rotation: route
     
